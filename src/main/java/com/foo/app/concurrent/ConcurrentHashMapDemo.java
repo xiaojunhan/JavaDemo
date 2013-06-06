@@ -1,5 +1,10 @@
 package com.foo.app.concurrent;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 /**
  * ConcurrentHashMap 使用例子
  * User: zongjh
@@ -9,8 +14,9 @@ package com.foo.app.concurrent;
  *     ConcurrentHashMap可以读取不加锁，其内部结构可以让其在进行写操作时候能够将锁保持尽量地小，
  *     不需要对整个ConcurrentHashMap加锁；
  *
- *     ConcurrentHashMap为了提高本身的并发能力，在内部采用了一个叫做Segment(段)的结构，
- *     一个Segment其实就是一个类HashTable的结构，Segment内部维护了一个链表数组;
+ *     ConcurrentHashMap为了提高本身的并发能力，在内部采用了一个叫做Segment(Segment是一种可重入锁ReentrantLock)的结构，
+ *     一个Segment里包含一个HashEntry数组，每个HashEntry是一个链表结构的元素， 每个Segment守护者一个HashEntry数组里的元素,
+ *     当对HashEntry数组的数据进行修改时，必须首先获得它对应的Segment锁。
  *
  *     从ConcurrentHashMap定位一个元素的过程需要进行两次Hash操作，第一次Hash定位到Segment，第二次Hash定位
  *     到元素所在链表的头部，因此，这种结构的带来副作用就是Hash的过程要比普通的HashMap要长，带来的好处就是
@@ -56,8 +62,48 @@ package com.foo.app.concurrent;
  *     每一个Segment的容量大小也是2的指数，同样使为了加快hash的过程。
  *
  *
+ *     需要特别注意下他们get put remove size 的实现原理；
+ *
+ *
+ *     下面说明下， Hashtable、synchronizedMap、ConcurrentHashMap 的比较 #
+ *          三者共同点：都是线程安全的，只是在效率上存在差异；
+ *
+ *          区别
+ *          Hashtable(效率低下的HashTable容器) 因为当一个线程访问HashTable的同步方法时，其他线程访问HashTable的同步方法时，
+ *                      可能会进入阻塞或轮询状态。
+ *          Collections.synchronizedMap(同步的包装器)
+ *
+ *
+ *
  */
 public class ConcurrentHashMapDemo {
 
+    /**
+     * 线程不安全的HashMap
+     * 因为多线程环境下，使用HashMap进行put操作会引起死循环，导致CPU利用率接近100%，所以在并发情况下不能使用HashMap
+     */
 
+    public void putHashMap() throws InterruptedException {
+        final Map<String, String> map = new HashMap<String, String>(2);
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 10000; i++) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            map.put(UUID.randomUUID().toString(), "");
+                        }
+                    }, "HashMap" + i).start();
+                }
+            }
+        }, "HashMap");
+        t.start();
+        t.join();
+    }
+
+
+    public static void main(String[] args) throws InterruptedException {
+        new ConcurrentHashMapDemo().putHashMap();
+    }
 }

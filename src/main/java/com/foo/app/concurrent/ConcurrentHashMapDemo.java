@@ -33,6 +33,27 @@ package com.foo.app.concurrent;
                 threshold：阈值，Segment里面元素的数量超过这个值依旧就会对Segment进行扩容
                 table：链表数组，数组中的每一个元素代表了一个链表的头部
                 loadFactor：负载因子，用于确定threshold
+ *     HashEntry
+ *     Segment中的元素是以HashEntry的形式存放在链表数组中的，看一下HashEntry的结构：
+ *        <pre>
+ *          static final class HashEntry<K,V> {
+ *              final K key;
+ *              final int hash;
+ *              volatile V value;
+ *              final HashEntry<K,V> next;
+ *           }
+ *        </pre>
+ *     ConcurrentHashMap的初始化一共有三个参数，一个initialCapacity，表示初始的容量，一个loadFactor，表示负载参数，
+ *     最后一个是concurrentLevel，代表ConcurrentHashMap内部的Segment的数量，
+ *     ConcurrentLevel一经指定，不可改变，后续如果ConcurrentHashMap的元素数量增加导致ConrruentHashMap需要扩容，
+ *     ConcurrentHashMap不会增加Segment的数量，而只会增加Segment中链表数组的容量大小，
+ *     这样的好处是扩容过程不需要对整个ConcurrentHashMap做rehash，
+ *     而只需要对Segment里面的元素做一次rehash就可以了。
+ *
+ *     整个ConcurrentHashMap的初始化方法还是非常简单的，先是根据concurrentLevel来new出Segment，
+ *     这里Segment的数量是不小于concurrentLevel的最大的2的指数，就是说Segment的数量永远是2的指数个，
+ *     这样的好处是方便采用移位操作来进行hash，加快hash的过程。接下来就是根据intialCapacity确定Segment的容量的大小，
+ *     每一个Segment的容量大小也是2的指数，同样使为了加快hash的过程。
  *
  *
  */

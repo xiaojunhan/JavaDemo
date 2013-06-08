@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
+ * 资料参考：并发编程网  ifeve.com
  * ConcurrentHashMap 使用例子
  * User: zongjh
  * Date: 13-6-6

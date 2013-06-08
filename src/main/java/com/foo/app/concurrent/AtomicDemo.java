@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * 资料参考：并发编程网  ifeve.com
  * 原子（atom）本意是“不能被进一步分割的最小粒子”，
  * 而原子操作（atomic operation）意为”不可被中断的一个或一系列操作” 。
  * User: zongjh

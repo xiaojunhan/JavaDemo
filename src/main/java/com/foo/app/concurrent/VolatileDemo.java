@@ -1,6 +1,7 @@
 package com.foo.app.concurrent;
 
 /**
+ * 资料参考：并发编程网  ifeve.com
  * Volatile的实现原理
  * Created with IntelliJ IDEA.
  * User: zongjh
